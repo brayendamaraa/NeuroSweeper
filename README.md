@@ -89,9 +89,9 @@ Only one cell is active per move.
 | 0 | No action |
 
 Example:
-0 0 0 0
-0 0 1 0
-0 0 0 0
+[[0 0 0 0],
+[0 0 1 0],
+[0 0 0 0]]
 
 
 This indicates revealing the cell at position `(1,2)`.
