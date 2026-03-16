@@ -58,3 +58,112 @@ Each board cell can be in one of several states:
 | Flagged | 10 |
 
 To make this suitable for a neural network, the board is **one-hot encoded into 11 channels**:
+0–8 → number tiles
+9 → unrevealed
+10 → flagged
+
+
+This produces an input tensor of shape:
+(H, W, 11)
+
+
+where:
+
+- **H** = board height  
+- **W** = board width  
+
+---
+
+## Action Encoding
+
+The agent's action is encoded as a matrix of size:
+(H, W)
+
+
+Only one cell is active per move.
+
+| Value | Meaning |
+|------|--------|
+| 1 | Reveal cell |
+| -1 | Flag cell |
+| 0 | No action |
+
+Example:
+0 0 0 0
+0 0 1 0
+0 0 0 0
+
+
+This indicates revealing the cell at position `(1,2)`.
+
+The encoding logic is implemented in `encoding.py`.
+
+---
+
+# 3. Model Architecture
+
+The model is implemented using **TensorFlow / Keras** and consists entirely of **convolutional layers**.
+
+Key design choices:
+
+### Why Convolutional Neural Networks?
+
+Minesweeper is a **spatial reasoning problem**.
+
+Each decision depends mostly on **local neighborhoods**, such as the 8 surrounding cells. Convolutional neural networks are well suited for this type of data because they:
+
+- capture **local spatial patterns**
+- share weights across the board
+- work with **variable board sizes**
+
+---
+
+### Why Only Convolutional Layers?
+
+The model uses **fully convolutional architecture** without dense layers.
+
+Advantages:
+
+- works with **arbitrary board sizes**
+- preserves spatial structure
+- produces an **output per cell**
+
+Architecture:
+Input (H, W, 11)
+
+Conv2D 64 filters
+Conv2D 64 filters
+Conv2D 64 filters
+Conv2D 64 filters
+
+Conv2D 1 filter (output)
+
+The final layer produces a **score for each cell** representing the predicted action.
+
+---
+
+# 4. Model Evaluation
+
+Both the deterministic agent and NeuroSweeper were evaluated on **Expert difficulty**:
+
+Board configuration:
+16 rows
+30 columns
+99 mines
+
+### Deterministic Agent
+
+Win Rate:
+~35%
+This agent uses logical deduction and brute force reasoning.
+
+---
+
+### NeuroSweeper
+
+Win Rate:
+~17%
+
+Although the neural network performs worse than the deterministic agent, it still performs significantly better than the **average human player** on expert difficulty.
+
+This shows that the model is able to learn useful patterns from the generated dataset.
